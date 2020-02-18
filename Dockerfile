@@ -25,7 +25,7 @@ COPY . .
 
 # Make sure the Docker image can be started without waiting for the project to compile
 # NOTE: mix deps.get is needed to update the freshly copied mix.lock file
-RUN mix do deps.get, compile
+#RUN mix do deps.get, compile
 
-CMD ["sh", "./bin/start.sh"]
+#CMD ["sh", "./bin/start.sh"]
 

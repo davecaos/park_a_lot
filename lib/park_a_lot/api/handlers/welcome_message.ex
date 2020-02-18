@@ -1,4 +1,4 @@
-defmodule ParkaLot.API.Actions.WelcomeMessage do
+defmodule ParkaLot.API.Handlers.WelcomeMessage do
   use Raxx.SimpleServer
   alias ParkaLot.API
 

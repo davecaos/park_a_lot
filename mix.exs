@@ -19,8 +19,11 @@ defmodule ParkaLot.Mixfile do
     [extra_applications: [:logger], mod: {ParkaLot.Application, []}]
   end
 
-  defp elixirc_paths(:test), do: ["lib", "test/support"]
-  defp elixirc_paths(_), do: ["lib"]
+    # Specifies which paths to compile per environment.
+    defp elixirc_paths(:test), do: ["lib", "test/support"]
+    defp elixirc_paths(:dev), do: ["lib", "test/support"]
+    defp elixirc_paths(_), do: ["lib"]
+
 
   defp deps do
     [
@@ -53,3 +56,4 @@ defmodule ParkaLot.Mixfile do
     end
   end
 end
+

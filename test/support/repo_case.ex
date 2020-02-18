@@ -4,11 +4,11 @@ defmodule ParkaLot.RepoCase do
 
   using do
     quote do
-      # alias ParkaLot.Repo
+       alias ParkaLot.Repo
 
-      # import Ecto
-      # import Ecto.Query
-      # import ParkaLot.RepoCase
+       import Ecto
+       import Ecto.Query
+       import ParkaLot.RepoCase
     end
   end
 

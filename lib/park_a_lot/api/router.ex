@@ -1,6 +1,6 @@
 defmodule ParkaLot.API.Router do
   use Raxx.Router
-  alias ParkaLot.API.Actions
+  alias ParkaLot.API.Handlers
 
   def stack(config) do
     Raxx.Stack.new(
@@ -13,10 +13,13 @@ defmodule ParkaLot.API.Router do
 
   # Call GreetUser and in WWW dir AND call into lib
   section [{Raxx.Logger, Raxx.Logger.setup(level: :info)}], [
-    {%{path: []}, Actions.WelcomeMessage},
+    {%{path: ["api", "tickets"]}, Handlers.Tickets },
+    {%{path: ["api", "tickets", _ticket]}, Handlers.Tickets },
+    {%{path: ["api", "status"]}, Handlers.Status }
   ]
 
   section [{Raxx.Logger, Raxx.Logger.setup(level: :debug)}], [
-    {_, Actions.NotFound}
+    {_, Handlers.NotFound}
   ]
 end
+

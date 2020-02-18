@@ -1,4 +1,4 @@
-defmodule ParkaLot.API.Actions.NotFound do
+defmodule ParkaLot.API.Handlers.NotFound do
   use Raxx.SimpleServer
   alias ParkaLot.API
 
