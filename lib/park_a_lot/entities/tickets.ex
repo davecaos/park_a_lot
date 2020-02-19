@@ -12,8 +12,9 @@ defmodule ParkaLot.Entities.Tickets do
       timestamps()
     end
 
-    def changeset(struct, params) do
-      cast(struct, params , [:deleted])
+    def changeset(ticket, params) do
+      ticket
+      |> Ecto.Changeset.cast(params , [:deleted, :inserted_at])
     end
 
     def set_soft_delete(changeset, flag) do

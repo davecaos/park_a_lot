@@ -16,7 +16,7 @@ defmodule ParkaLot.API.Handlers.Tickets do
   end
 
   def handle_request(_request = %{method: :GET, path: ["api", "tickets", barcode]}, _state) do
-    case Tickets.calculate_parking_costs(barcode)  do
+    case Tickets.parking_costs_by(barcode)  do
       {:ok, cost} ->  
         response(:ok)
         |>  API.set_json_payload(%{data: cost })

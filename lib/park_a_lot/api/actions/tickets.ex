@@ -34,12 +34,12 @@ defmodule ParkaLot.API.Actions.Tickets do
     end
   end
 
-  defp calculate_parking_time_in_hours(ticket_id) do
+  defp diff_time_between_ticket_now_in_hours_by(ticket_id) do
     case get_by(ticket_id) do
       {:ok, ticket} -> 
         inserted_at = ticket.inserted_at
         now_in_seconds = DateTime.to_unix(DateTime.utc_now()) 
-        ticket_created_in_seconds = DateTime.to_unix(DateTime.from_naive!(inserted_at, "Etc/UTC"))
+        ticket_created_in_seconds = DateTime.to_unix(DateTime.from_naive!(inserted_at, "Etc/UTC"))  
         # now_in_seconds value should be greater than ticket_created_in_seconds time but if better to enforce that
         ticket_created_in_seconds = min(ticket_created_in_seconds, now_in_seconds)
         diff_in_seconds = now_in_seconds - ticket_created_in_seconds  
@@ -56,8 +56,8 @@ defmodule ParkaLot.API.Actions.Tickets do
     max(@parking_cost_by_hour, cost)
   end
 
-  def calculate_parking_costs(ticket_id) do
-    case calculate_parking_time_in_hours(ticket_id) do
+  def parking_costs_by(ticket_id) do
+    case diff_time_between_ticket_now_in_hours_by(ticket_id) do
       {:ok, hours} -> 
         cost = minimum_parking_cost(hours * @parking_cost_by_hour)
         Maybe.ok( %{cost: cost}) 
