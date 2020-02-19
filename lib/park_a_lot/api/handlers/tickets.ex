@@ -5,7 +5,7 @@ defmodule ParkaLot.API.Handlers.Tickets do
 
   @impl Raxx.SimpleServer
 
-  def handle_request(_request = %{method: :POST}, _state) do
+  def handle_request(_request = %{method: :POST, path: ["api", "tickets"]}, _state) do
     case Tickets.create() do
       {:ok, ticket} ->  
         response(:ok)
