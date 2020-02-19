@@ -15,15 +15,15 @@ defmodule ParkaLot.API.Handlers.Tickets do
       end
   end
 
-  def handle_request(_request = %{method: :GET, path: ["api", "tickets", ticket_id]}, _state) do
-    case Tickets.get_by(ticket_id)  do
-      {:ok, ticket} ->  
+  def handle_request(_request = %{method: :GET, path: ["api", "tickets", barcode]}, _state) do
+    case Tickets.calculate_parking_costs(barcode)  do
+      {:ok, cost} ->  
         response(:ok)
-        |>  API.set_json_payload(%{data: ticket })
+        |>  API.set_json_payload(%{data: cost })
 
       {:error, error} -> 
         response(404)
-        |> API.set_json_payload(%{errors: [error]})
+        |> API.set_json_payload(%{error: [error]})
       end
   end
 
