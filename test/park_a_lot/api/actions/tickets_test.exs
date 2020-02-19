@@ -1,7 +1,10 @@
 defmodule ParkaLot.API.Handlers.TicketsTest do
   use ExUnit.Case
   use ParkaLot.RepoCase
-  
+
+  alias ParkaLot.Entities
+  alias ParkaLot.Maybe
+  alias ParkaLot.Repo
   alias ParkaLot.API.Handlers.Tickets
 
   @endpoint "/api/tickets"
@@ -67,5 +70,31 @@ defmodule ParkaLot.API.Handlers.TicketsTest do
     assert {:ok, %{"error" => _reason}} = Jason.decode(cost_response.body)
 
   end
+
+  test "Check the cost of parking of 4 hours" do
+    now = NaiveDateTime.utc_now()
+
+    ticket =  %Entities.Tickets{}
+    changeset = Entities.Tickets.changeset(ticket, %{})
+    assert {:ok, new_ticket}  = Repo.insert(changeset)
+    assert %{id: ticket_id} = new_ticket
+    barcode = Integer.to_string(ticket_id, 16)
+    cost_request = Raxx.request(:GET, "/api/tickets/#{barcode}")
+
+    four_hours_ago = abs(rem(now.hour - 4, 24))
+    {:ok, four_hours_ago_nt} = NaiveDateTime.new(now.year, now.month, now.day, four_hours_ago, now.minute, now.second)
+    new_ticket
+      |> Entities.Tickets.changeset(%{inserted_at: four_hours_ago_nt})
+      |> Repo.update()
+ 
+    
+    
+    cost_response = Tickets.handle_request(cost_request, %{})
+    assert cost_response.status == 200
+    assert {:ok, %{"data" => %{"cost" => 8}}} = Jason.decode(cost_response.body)
+
+  end
+
+
 
 end
