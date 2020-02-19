@@ -11,7 +11,7 @@ defmodule ParkaLotTest do
   end
 
   test "Serves homepage", %{port: port} do
-    assert {:ok, response} = :httpc.request('http://localhost:#{port}')
+    assert {:ok, response} = :httpc.request('http://localhost:#{port}/api/status')
     assert {{_, 200, 'OK'}, _headers, _body} = response
   end
 end
