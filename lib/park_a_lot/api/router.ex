@@ -15,8 +15,9 @@ defmodule ParkaLot.API.Router do
   section [{Raxx.Logger, Raxx.Logger.setup(level: :info)}], [
     {%{path: ["api", "tickets"]}, Handlers.Tickets },
     {%{path: ["api", "tickets", _barcode, "payments"]}, Handlers.Payments },
+    {%{path: ["api", "tickets", _barcode, "payments"]}, Handlers.Payments },
     {%{path: ["api", "tickets", _barcode]}, Handlers.Tickets },
-    {%{path: ["api", "status"]}, Handlers.Status }
+    {%{path: ["api", "status"]}, Handlers.ServerStatus }
   ]
 
   section [{Raxx.Logger, Raxx.Logger.setup(level: :debug)}], [

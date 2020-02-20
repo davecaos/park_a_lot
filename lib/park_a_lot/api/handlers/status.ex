@@ -1,4 +1,4 @@
-defmodule ParkaLot.API.Handlers.Status do
+defmodule ParkaLot.API.Handlers.ServerStatus do
   use Raxx.SimpleServer
 
   @impl Raxx.SimpleServer
