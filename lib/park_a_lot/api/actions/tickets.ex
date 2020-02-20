@@ -1,41 +1,36 @@
 defmodule ParkaLot.API.Actions.Tickets do
-  alias ParkaLot.Entities
+
+  alias ParkaLot.Entities.Tickets
   alias ParkaLot.Maybe
   alias ParkaLot.Repo
+  alias ParkaLot.Tickets.Conversion
 
   import Ecto.Query
 
   @parking_cost_by_hour 2
 
   def create() do
-    ticket =  %Entities.Tickets{}
-    changeset = Entities.Tickets.changeset(ticket, %{})
+    ticket =  %Tickets{}
+    changeset = Tickets.changeset(ticket, %{})
     case Repo.insert(changeset) do
       {:ok, new_ticket} -> Maybe.ok(render_to_ejson(new_ticket))
       _ -> Maybe.error("Ticket not created")
     end
   end
 
-  defp get_by(ticket_id_in_hexa) do
-    case Integer.parse(ticket_id_in_hexa, 16) do
-    {ticket_id_in_decimal, ""} ->
-      query_by(ticket_id_in_decimal)
-    _error ->
-      Maybe.error("Invalid ticket id")
-    end
-  end
-
-  defp query_by(ticket_id_in_decimal) do
-    query  = from(t in Entities.Tickets, where: t.id == ^ticket_id_in_decimal, select: [t.id, t.inserted_at])
-
-    case Repo.all(query) do
-        [] -> Maybe.error("Ticket Not Found")
-        [[id, inserted_at]]  -> {:ok, %{id: id, inserted_at: inserted_at}}
+  defp get_by(ticket_id_in_dec) do
+   
+    case Repo.get(Tickets, ticket_id_in_dec) do
+        nil -> Maybe.error("Ticket Not Found")
+        ticket -> Maybe.ok(ticket)
     end
   end
 
   defp diff_time_between_ticket_now_in_hours_by(ticket_id) do
     case get_by(ticket_id) do
+      {:ok, %{:paid => true }} -> 
+        Maybe.ok(0)
+
       {:ok, ticket} -> 
         inserted_at = ticket.inserted_at
         now_in_seconds = DateTime.to_unix(DateTime.utc_now()) 
@@ -59,7 +54,7 @@ defmodule ParkaLot.API.Actions.Tickets do
   def parking_costs_by(ticket_id) do
     case diff_time_between_ticket_now_in_hours_by(ticket_id) do
       {:ok, hours} -> 
-        cost = minimum_parking_cost(hours * @parking_cost_by_hour)
+        cost = hours * @parking_cost_by_hour
         Maybe.ok( %{cost: cost}) 
 
       error -> error
@@ -82,16 +77,10 @@ defmodule ParkaLot.API.Actions.Tickets do
     end
   end
 
-  def render_to_ejson(%{id: ticket_id}) do
-    render_to_ejson(ticket_id)
-  end
 
-  def render_to_ejson(ticket_id) do
-    id_in_hexa16 = Integer.to_string(ticket_id, 16)
-    padding_size = 16 - String.length(id_in_hexa16)
-    padding = for _ <- 0..padding_size, do: '0'
-    id_in_hexa16_with_padding = "#{padding}" <>  id_in_hexa16
-    %{id: id_in_hexa16_with_padding }
+  def render_to_ejson(ticket = %{id: ticket_id, inserted_at: inserted_at}) do
+    {:ok, id_hexa16_with_padding} = Conversion.to_hex_barcode_from(ticket_id) 
+    %{id: id_hexa16_with_padding, inserted_at: inserted_at}
   end
 
 end
