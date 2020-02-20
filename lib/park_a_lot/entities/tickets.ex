@@ -1,20 +1,22 @@
 defmodule ParkaLot.Entities.Tickets do
-  alias ParkaLot.API
+  alias ParkaLot.Entities.Tickets
  
   use Ecto.Schema
   import Ecto.Changeset
 
-  #@derive {Jason.Encoder, only: [:id]}
+  @derive {Jason.Encoder, only: [:paid, :payment_method, :paid_at, :inserted_at]}
 
     schema "tickets" do
       # soft delete, keeping the history for auditing later
-      field :deleted, :boolean
+      field :paid, :boolean
+      field :payment_method, :string
+      field :paid_at, :utc_datetime
       timestamps()
     end
 
-    def changeset(ticket, params) do
+    def changeset(ticket, attrs \\ %{}) do
       ticket
-      |> Ecto.Changeset.cast(params , [:deleted, :inserted_at])
+      |> Ecto.Changeset.cast(attrs, [:paid, :payment_method, :paid_at, :inserted_at])
     end
 
     def set_soft_delete(changeset, flag) do
