@@ -14,7 +14,7 @@ defmodule ParkaLot.API.Router do
   # Call GreetUser and in WWW dir AND call into lib
   section [{Raxx.Logger, Raxx.Logger.setup(level: :info)}], [
     {%{path: ["api", "tickets"]}, Handlers.Tickets },
-    {%{path: ["api", "tickets", _barcode, "payments"]}, Handlers.Payments },
+    {%{path: ["api", "tickets", _barcode, "state"]}, Handlers.PaymentsState},
     {%{path: ["api", "tickets", _barcode, "payments"]}, Handlers.Payments },
     {%{path: ["api", "tickets", _barcode]}, Handlers.Tickets },
     {%{path: ["api", "status"]}, Handlers.ServerStatus }
