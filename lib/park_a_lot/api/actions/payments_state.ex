@@ -17,26 +17,13 @@ defmodule ParkaLot.API.Actions.PaymentsState do
   end
 
   def get_status(ticket_id) do
-    #TODO
-    Maybe.ok(%{:status => "unpaid"})
-  end
 
-  def diff_time_between_paid_ticket_now_in_minutes_by(ticket_id) do
-    case get_by(ticket_id) do
-      {:ok, ticket =%{paid_at: "unpaid"}} -> 
-        Maybe.ok(%{ticket_state | state: :unpaid} )
-      {:ok, ticket} -> 
-        paid_at= ticket.paid_at
-        now_in_seconds = DateTime.to_unix(DateTime.utc_now()) 
-        ticket_paid_at_in_seconds = DateTime.to_unix(DateTime.from_naive!(paid_at, "Etc/UTC"))  
-        # now_in_seconds value should be greater than ticket_created_in_seconds time but if better to enforce that
-        ticket_paid_at_in_seconds = min(ticket_paid_at_in_seconds, now_in_seconds)
-        diff_in_seconds = now_in_seconds - ticket_paid_at_in_seconds  
-        hours = div(diff_in_seconds, 3600)
-        ticket_state = if rem(diff_in_seconds, 60) > 15, do: :unpaid, else: :paid
-        Maybe.ok(%{ticket | state: ticket_state} )
-
-      error -> error
+    with  {:ok, ticket_state} <- get_by(ticket_id),
+          {:ok, is_paid} <-  Map.fetch(ticket_state, :paid) do
+            payment_state = if is_paid, do: "paid", else: "unpaid"
+            Maybe.ok( Map.merge(ticket_state, %{state: payment_state}))
+    else
+          error -> error
     end
   end
 
