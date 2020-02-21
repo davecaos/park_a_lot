@@ -71,7 +71,7 @@ defmodule ParkaLot.API.Handlers.TicketsTest do
 
   end
 
-  test "Check the cost of parking of 4 hours" do
+  test "Check the cost of parking for 4 complete hours (4 hs + you current" do
     now = NaiveDateTime.utc_now()
 
     ticket =  %Entities.Tickets{}
@@ -81,17 +81,18 @@ defmodule ParkaLot.API.Handlers.TicketsTest do
     barcode = Integer.to_string(ticket_id, 16)
     cost_request = Raxx.request(:GET, "/api/tickets/#{barcode}")
 
-    four_hours_ago = abs(rem(now.hour - 4, 24))
-    {:ok, four_hours_ago_nt} = NaiveDateTime.new(now.year, now.month, now.day, four_hours_ago, now.minute, now.second)
+    four_hours_ago_in_seconds = 60*60*4 
+    four_hours_ago_plus_minute_in_seconds = four_hours_ago_in_seconds + 60
+    four_hours_ago_NDT = NaiveDateTime.add(now , (- four_hours_ago_plus_minute_in_seconds))
     new_ticket
-      |> Entities.Tickets.changeset(%{inserted_at: four_hours_ago_nt})
+      |> Entities.Tickets.changeset(%{inserted_at: four_hours_ago_NDT})
       |> Repo.update()
  
     
     
     cost_response = Tickets.handle_request(cost_request, %{})
     assert cost_response.status == 200
-    assert {:ok, %{"data" => %{"cost" => 8}}} = Jason.decode(cost_response.body)
+    assert {:ok, %{"data" => %{"cost" => 10}}} = Jason.decode(cost_response.body)
 
   end
 

@@ -4,7 +4,7 @@ defmodule ParkaLot.Entities.Tickets do
   use Ecto.Schema
   import Ecto.Changeset
 
-  @derive {Jason.Encoder, only: [:paid, :payment_method, :paid_at, :inserted_at]}
+  @derive {Jason.Encoder, only: [ :payment_method, :state,  :paid_at, :inserted_at]}
 
     schema "tickets" do
       # soft delete, keeping the history for auditing later

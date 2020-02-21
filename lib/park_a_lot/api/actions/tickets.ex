@@ -4,6 +4,7 @@ defmodule ParkaLot.API.Actions.Tickets do
   alias ParkaLot.Maybe
   alias ParkaLot.Repo
   alias ParkaLot.Tickets.Conversion
+  alias ParkaLot.Tickets.Datatypes.Time
 
   import Ecto.Query
 
@@ -18,9 +19,8 @@ defmodule ParkaLot.API.Actions.Tickets do
     end
   end
 
-  defp get_by(ticket_id_in_dec) do
-   
-    case Repo.get(Tickets, ticket_id_in_dec) do
+  defp get_by(ticket_id) do
+    case Repo.get(Tickets, ticket_id) do
         nil -> Maybe.error("Ticket Not Found")
         ticket -> Maybe.ok(ticket)
     end
@@ -28,16 +28,11 @@ defmodule ParkaLot.API.Actions.Tickets do
 
   defp diff_time_between_ticket_now_in_hours_by(ticket_id) do
     case get_by(ticket_id) do
-      {:ok, %{:paid => true }} -> 
+      {:ok, ticket1 = %{paid: true, paid_at: paid_at}} -> 
         Maybe.ok(0)
 
       {:ok, ticket} -> 
-        inserted_at = ticket.inserted_at
-        now_in_seconds = DateTime.to_unix(DateTime.utc_now()) 
-        ticket_created_in_seconds = DateTime.to_unix(DateTime.from_naive!(inserted_at, "Etc/UTC"))  
-        # now_in_seconds value should be greater than ticket_created_in_seconds time but if better to enforce that
-        ticket_created_in_seconds = min(ticket_created_in_seconds, now_in_seconds)
-        diff_in_seconds = now_in_seconds - ticket_created_in_seconds  
+        diff_in_seconds = Time.diff_date_and_now_in_seconds(ticket.inserted_at)
         hours = div(diff_in_seconds, 3600)
         started_hour = if rem(diff_in_seconds, 3600) == 0, do: 0, else: 1
         Maybe.ok(hours + started_hour)
