@@ -3,6 +3,7 @@ defmodule ParkaLot.Repo.Migrations.MoveOldDataVersionToStateFieldOfTicketsTable 
 
   alias ParkaLot.Repo
   alias ParkaLot.Entities.Constants, as: Constants
+  alias ParkaLot.Entities.Tickets, as: Tickets 
 
   import Ecto.Query
 

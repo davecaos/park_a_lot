@@ -1,7 +1,6 @@
-# ParkaLot
+# ParkaLot Server
 ![Plogo](https://user-images.githubusercontent.com/6124495/75305074-cb87dd80-5823-11ea-904d-049e92bc3e7e.png)
 ![giphy](https://user-images.githubusercontent.com/6124495/75306280-57e7cf80-5827-11ea-9f9c-a5e44a2903bd.gif)
-
 
 ## how to run in your local env (dev)
 
@@ -23,7 +22,7 @@
 - prepare the database using `mix do ecto.create, ecto.migrate`
 - Start your service with `iex -S mix`
 
-## API description
+## HTTP API Abstract OK/Error return description
 
 ### Response OK :ok: :white_check_mark:
 
@@ -41,7 +40,7 @@ This kinda errors shall arise from the actions or Entities modules
   "error": reason //reason is a string with error description
 }
 ```
-### Response Error:x: :computer:(Server Level) but **maybe** it would contain a optional payload
+### Response Error:x: :computer:(Server Level) but **maybe** it wouldn't contain a payload
 HttpCode in [30X, 40X, 50X]
 This kinda errors shall arise from the handlers or from an un expected situation like an outage.
 ``` js
@@ -50,6 +49,6 @@ This kinda errors shall arise from the handlers or from an un expected situation
 }
 ```
 
-
+## API Flow descriptions
 
 
