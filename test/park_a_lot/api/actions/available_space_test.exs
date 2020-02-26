@@ -23,4 +23,11 @@ defmodule ParkaLot.API.Handlers.AvailableSpaceTest do
     assert {:ok, %{"data" => %{"available_free_space" => mock_available_free_space}}} = Jason.decode(response.body)
   end
 
+  test "after thelast parking slot is taken, the available_free_space must be ZERO" do
+    SingletonAvailableSpace.set(SingletonAvailableSpace.total_available_space())
+    
+    response = check_available_free_space_handler() 
+    assert {:ok, %{"data" => %{"available_free_space" => 0}}} = Jason.decode(response.body)
+  end
+
 end
