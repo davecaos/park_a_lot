@@ -1,5 +1,6 @@
 # ParkaLot
 ![Plogo](https://user-images.githubusercontent.com/6124495/75305074-cb87dd80-5823-11ea-904d-049e92bc3e7e.png)
+![giphy](https://user-images.githubusercontent.com/6124495/75306280-57e7cf80-5827-11ea-9f9c-a5e44a2903bd.gif)
 
 
 ## how to run in your local env (dev)
