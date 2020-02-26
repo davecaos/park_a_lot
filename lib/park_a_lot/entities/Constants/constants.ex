@@ -3,6 +3,12 @@ defmodule ParkaLot.Entities.Constants do
     @parking_cost_by_hour 2
     def parking_cost_by_hour, do: @parking_cost_by_hour 
 
+    @total_available_space 54
+    def total_available_space, do: @total_available_space 
+
+    @singleton_intance_id  1
+    def singleton_intance_id, do: @singleton_intance_id 
+
     @in_seconds_15minutes 60*15
     def in_seconds_15minutes(), do: @in_seconds_15minutes 
 
@@ -23,4 +29,5 @@ defmodule ParkaLot.Entities.Constants do
     def credit_card_state, do: @credit_card_state 
     def debit_card_state, do: @debit_card_state 
     def cash_state, do: @cash_state 
+    
 end

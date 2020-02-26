@@ -12,7 +12,7 @@ defmodule ParkaLot.API.Handlers.AvailableSpace do
           |> API.set_json_payload(%{data: free_space })
     else
       {:error, reason}  ->
-        response(400)
+        response(:ok)
         |> API.set_json_payload(%{error: reason })
       _ ->
         response(:error)

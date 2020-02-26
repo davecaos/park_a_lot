@@ -1,11 +1,6 @@
 defmodule ParkaLot.Tickets.Datatypes.Time do
     alias ParkaLot.Maybe
 
-
-    @in_seconds_15minutes 60*15
-    # Sharing private module constant through a function call
-    def in_seconds_15minutes(), do: @in_seconds_15minutes 
-
     def diff_time_dates(date, minus_second_date ) do
         date_in_seconds = DateTime.to_unix(DateTime.from_naive!(date, "Etc/UTC"))
         minus_second_date_in_seconds = DateTime.to_unix(DateTime.from_naive!(minus_second_date, "Etc/UTC"))

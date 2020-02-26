@@ -4,7 +4,7 @@ defmodule ParkaLot.API.Handlers.NotFound do
 
   @impl Raxx.SimpleServer
   def handle_request(_request, _state) do
-    error = %{reason: "Not found"}
+    error = %{reason: "Not found Path"}
 
     response(:not_found)
     |> API.set_json_payload(%{errors: [error]})

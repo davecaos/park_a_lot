@@ -6,7 +6,7 @@ defmodule ParkaLot.API.Handlers.Payments do
 
   @impl Raxx.SimpleServer
 
-  def handle_request(request = %{method: :POST, path: ["api", "tickets", barcode, "payments"]}, _state) do
+  def handle_request(request = %{ path: ["api", "tickets", barcode, "payments"]}, _state) do
     with {:ok, ticket_id} <-  Conversion.to_id_from(barcode),
          {:ok,  %{"payment_method" =>  pay_method}} <- Jason.decode(request.body),
          {:ok, ticket} <- Payments.pay_by(ticket_id, pay_method) do
@@ -14,7 +14,7 @@ defmodule ParkaLot.API.Handlers.Payments do
           |> API.set_json_payload(%{data: ticket })
     else
       {:error, reason}  ->
-        response(400)
+        response(:ok)
         |> API.set_json_payload(%{error: reason })
       _ -> 
         response(:error)
