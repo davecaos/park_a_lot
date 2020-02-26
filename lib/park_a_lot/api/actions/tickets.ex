@@ -43,7 +43,7 @@ defmodule ParkaLot.API.Actions.Tickets do
     case diff_time_between_ticket_now_in_hours_by(ticket_id) do
       {:ok, hours} -> 
         cost = hours * Constants.parking_cost_by_hour
-        Maybe.ok( %{cost: cost}) 
+        Maybe.ok( %{cost: cost, currency: Constants.currency}) 
 
       error -> error
     end

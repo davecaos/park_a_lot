@@ -6,6 +6,9 @@ defmodule ParkaLot.Entities.Constants do
     @total_available_space 54
     def total_available_space, do: @total_available_space 
 
+    @currency "euros"
+    def currency, do: @currency
+
     @singleton_intance_id  1
     def singleton_intance_id, do: @singleton_intance_id 
 
