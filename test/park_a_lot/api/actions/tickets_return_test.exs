@@ -1,4 +1,4 @@
-defmodule ParkaLot.API.Handlers.TicketsReturn do
+defmodule ParkaLot.API.Handlers.TicketsReturnTest do
   use ExUnit.Case
   use ParkaLot.RepoCase
 
@@ -38,20 +38,6 @@ defmodule ParkaLot.API.Handlers.TicketsReturn do
 
     ReturnTickets.handle_request(request, %{})
   end
-  
-  test "after the user created a ticket, that ticket must set the ticket as unpaid" do
-    response = create_new_ticket_handle() 
-
-    assert response.status == 200
-    assert {"content-type", "application/json"} in response.headers
-    assert {:ok, %{"data" => %{"id" => bardcode}}} = Jason.decode(response.body)
-    assert {ticket_id, ""} = Integer.parse(bardcode, 16)
-    assert is_integer(ticket_id)
-
-    state_response = hit_payments_state_handle(bardcode) 
-    assert {:ok, %{"data" => %{"state" => "unpaid"}}} = Jason.decode(state_response.body)
-
-  end
 
 
   test "after the user paid a ticket, that ticket must set the ticket as paid" do
@@ -76,6 +62,30 @@ defmodule ParkaLot.API.Handlers.TicketsReturn do
     response = hit_payments_state_handle(bardcode) 
     assert {:ok, %{"data" => %{"state" => "paid"}}} = Jason.decode(response.body)
   end
+
+  test "after the user returned a ticket, every try to return the ticket again must arise an ERROR" do
+    response = create_new_ticket_handle() 
+
+    assert response.status == 200
+    assert {"content-type", "application/json"} in response.headers
+    assert {:ok, %{"data" => %{"id" => bardcode}}} = Jason.decode(response.body)
+    assert {ticket_id, ""} = Integer.parse(bardcode, 16)
+    assert is_integer(ticket_id)
+
+    response = hit_payments_state_handle(bardcode) 
+    assert {:ok, %{"data" => %{"state" => "unpaid"}}} = Jason.decode(response.body)
+
+
+    response = hit_payments_handle(bardcode) 
+    assert {:ok, %{"data" => %{"payment_method" => "cash","state" => "paid"}}} = Jason.decode(response.body)
+
+    response_return_state = hit_ticket_return_state_handle(bardcode) 
+    assert {:ok, %{"data" => %{"state" => "returned"}}} = Jason.decode(response_return_state.body)
+
+    response_error_return_state = hit_ticket_return_state_handle(bardcode) 
+    assert {:ok, %{"error" => ["Ticket already returned"]}} = Jason.decode(response_error_return_state.body)
+  end
+
 
   test "after LESS than 15 min than user paid a ticket, that ticket must set the ticket as PAID" do
     response = create_new_ticket_handle() 
@@ -109,7 +119,6 @@ defmodule ParkaLot.API.Handlers.TicketsReturn do
   end
 
   test "after MORE than 4 hours than user RETURNED a ticket, that ticket must still set as PAID state" do
-
     now = NaiveDateTime.utc_now()
     response = create_new_ticket_handle() 
 

@@ -56,5 +56,20 @@ defmodule ParkaLot.API.Handlers.PaymentsTest do
     assert {:ok, %{"data" => %{"cost" => already_paid_ticket_cost}}} = Jason.decode(cost_response.body)
   end
 
+  test "After the user paid a ticket, every try to paid the ticket again must arise an ERROR" do
+    response = create_new_ticket_handle() 
+
+    assert response.status == 200
+    assert {"content-type", "application/json"} in response.headers
+    assert {:ok, %{"data" => %{"id" => bardcode_hexa}}} = Jason.decode(response.body)
+    assert {ticket_id, ""} = Integer.parse(bardcode_hexa, 16)
+    assert is_integer(ticket_id)
+
+    response = hit_payments_handle(bardcode_hexa) 
+    assert {:ok, %{"data" => %{"id" => bardcode_hexa, "payment_method" => "cash", "state" => "paid"}}} = Jason.decode(response.body)
+
+    error_response = hit_payments_handle(bardcode_hexa) 
+    assert {:ok, %{"error" => "Ticket already paid"}} = Jason.decode(error_response.body)
+  end
 
 end
