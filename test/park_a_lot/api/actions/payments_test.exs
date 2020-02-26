@@ -34,10 +34,10 @@ defmodule ParkaLot.API.Handlers.PaymentsTest do
     assert is_integer(ticket_id)
 
     response = hit_payments_handle(bardcode_hexa) 
-    assert {:ok, %{"data" => %{"payment_method" => "cash", "state" => "paid"}}} = Jason.decode(response.body)
+    assert {:ok, %{"data" => %{"id" => bardcode_hexa, "payment_method" => "cash", "state" => "paid"}}} = Jason.decode(response.body)
   end
 
-  test "After we paid a ticket, this must cost 0" do
+  test "After the user paid a ticket, this must cost 0" do
     response = create_new_ticket_handle() 
 
     assert response.status == 200
@@ -47,7 +47,7 @@ defmodule ParkaLot.API.Handlers.PaymentsTest do
     assert is_integer(ticket_id)
 
     response = hit_payments_handle(bardcode_hexa) 
-    assert {:ok, %{"data" => %{"payment_method" => "cash", "state" => "paid"}}} = Jason.decode(response.body)
+    assert {:ok, %{"data" => %{"id" => bardcode_hexa, "payment_method" => "cash", "state" => "paid"}}} = Jason.decode(response.body)
 
     cost_request = Raxx.request(:GET, "/api/tickets/#{bardcode_hexa}")
     cost_response = Tickets.handle_request(cost_request, %{})
