@@ -1,4 +1,4 @@
-defmodule ParkaLot.API.Handlers.PaymentsStateTest do
+defmodule ParkaLot.API.Handlers.TicketsReturn do
   use ExUnit.Case
   use ParkaLot.RepoCase
 
@@ -8,9 +8,10 @@ defmodule ParkaLot.API.Handlers.PaymentsStateTest do
   alias ParkaLot.API.Handlers.Tickets
   alias ParkaLot.Tickets.Datatypes.Time
   alias ParkaLot.API.Handlers.Payments
+  alias ParkaLot.API.Handlers.ReturnTickets
   alias ParkaLot.API.Handlers.PaymentsState
+  
 
-  @endpoint "/api/tickets"
 
   def create_new_ticket_handle() do
     request = Raxx.request(:POST, "/api/tickets")
@@ -28,9 +29,14 @@ defmodule ParkaLot.API.Handlers.PaymentsStateTest do
 
   def hit_payments_state_handle(barcode) do
     request = Raxx.request(:GET, "/api/tickets/#{barcode}/state")
- 
-
     PaymentsState.handle_request(request, %{})
+  end
+
+  def hit_ticket_return_state_handle(barcode) do
+    request = Raxx.request(:POST, "/api/tickets/#{barcode}/return")
+    |> ParkaLot.API.set_json_payload(%{}) 
+
+    ReturnTickets.handle_request(request, %{})
   end
   
   test "after the user created a ticket, that ticket must set the ticket as unpaid" do
@@ -42,8 +48,8 @@ defmodule ParkaLot.API.Handlers.PaymentsStateTest do
     assert {ticket_id, ""} = Integer.parse(bardcode, 16)
     assert is_integer(ticket_id)
 
-    response = hit_payments_state_handle(bardcode) 
-    assert {:ok, %{"data" => %{"state" => "unpaid"}}} = Jason.decode(response.body)
+    state_response = hit_payments_state_handle(bardcode) 
+    assert {:ok, %{"data" => %{"state" => "unpaid"}}} = Jason.decode(state_response.body)
 
   end
 
@@ -63,6 +69,9 @@ defmodule ParkaLot.API.Handlers.PaymentsStateTest do
 
     response = hit_payments_handle(bardcode) 
     assert {:ok, %{"data" => %{"payment_method" => "cash","state" => "paid"}}} = Jason.decode(response.body)
+
+    response_return_state = hit_ticket_return_state_handle(bardcode) 
+    assert {:ok, %{"data" => %{"state" => "returned"}}} = Jason.decode(response_return_state.body)
 
     response = hit_payments_state_handle(bardcode) 
     assert {:ok, %{"data" => %{"state" => "paid"}}} = Jason.decode(response.body)
@@ -92,11 +101,14 @@ defmodule ParkaLot.API.Handlers.PaymentsStateTest do
     |> Entities.Tickets.changeset(%{updated_at: fourteen_min_ago_NDT})
     |> Repo.update()
 
-    response = hit_payments_state_handle(bardcode) 
-    assert {:ok, %{"data" => %{"state" => "paid"}}} = Jason.decode(response.body)
+    response_return_state = hit_ticket_return_state_handle(bardcode) 
+    assert {:ok, %{"data" => %{"state" => "returned"}}} = Jason.decode(response_return_state.body)
+ 
+    state_response = hit_payments_state_handle(bardcode) 
+    assert {:ok, %{"data" => %{"state" => "paid"}}} = Jason.decode(state_response.body)
   end
 
-  test "after MORE than 15 min than user paid a ticket, that ticket must set the ticket as UNPAID" do
+  test "after MORE than 4 hours than user RETURNED a ticket, that ticket must still set as PAID state" do
 
     now = NaiveDateTime.utc_now()
     response = create_new_ticket_handle() 
@@ -116,16 +128,18 @@ defmodule ParkaLot.API.Handlers.PaymentsStateTest do
 
     ticketEntity = Repo.get(Entities.Tickets, ticket_id) 
   
-    sixteen_min_ago_in_seconds = 60*16 
-    sixteen_min_ago_NDT = NaiveDateTime.add(now , (- sixteen_min_ago_in_seconds))
+    four_hours_ago_in_seconds = 60*16 
+    four_hours_ago_NDT = NaiveDateTime.add(now , (- four_hours_ago_in_seconds))
 
     ticketEntity
-    |> Entities.Tickets.changeset(%{updated_at: sixteen_min_ago_NDT})
+    |> Entities.Tickets.changeset(%{updated_at: four_hours_ago_NDT})
     |> Repo.update()
 
+    response_return_state = hit_ticket_return_state_handle(bardcode) 
+    assert {:ok, %{"data" => %{"state" => "returned"}}} = Jason.decode(response_return_state.body)
  
-    response = hit_payments_state_handle(bardcode) 
-    assert {:ok, %{"data" => %{"state" => "unpaid"}}} = Jason.decode(response.body)
+    state_response = hit_payments_state_handle(bardcode) 
+    assert {:ok, %{"data" => %{"state" => "paid"}}} = Jason.decode(state_response.body)
   end
 
 end

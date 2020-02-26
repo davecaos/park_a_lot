@@ -66,7 +66,7 @@ defmodule ParkaLot.API.Handlers.TicketsTest do
 
     cost_request = Raxx.request(:GET, "/api/tickets/#{bardcode_hexa_do_no_exist}")
     cost_response = Tickets.handle_request(cost_request, %{})
-    assert cost_response.status == 404  
+    assert cost_response.status == 200  
     assert {:ok, %{"error" => _reason}} = Jason.decode(cost_response.body)
 
   end
